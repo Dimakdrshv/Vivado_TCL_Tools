@@ -108,6 +108,7 @@ delete_ip_file my_ip.xci
 Данный скрипт необходим в том случае, если вы создаете файлы через GUI интерфейс САПР Vivado или хотите экспортировать IP-ядро из проекта. Поддерживаются файлы формата **.v .sv .mem .xdc .vh .xci**. Данные файлы экспортируются в соответствующие директории `files/*` или `ip/` в зависимости от введенной команды.
 
 Пример использования:
+
 ```tcl
 source scripts/export_sources.tcl
 export_design_source abc.v
@@ -116,7 +117,16 @@ export_constraints_source constraints.xdc
 export_ip_source my_ip.xci
 ```
 
-# Исправления
+### Дополнительная информация
+
+При использовании команд, указанных ниже, смотрите выводимые в консоль подсказки.
+
+```tcl
+source scripts/build_project.tcl
+source scripts/create_file.tcl
+source scripts/delete_file.tcl
+source scripts/export_sources.tcl
+```
 
 В случае, если Вы нашли ошибку в скриптах, то делайте PR - исправим :)
 
