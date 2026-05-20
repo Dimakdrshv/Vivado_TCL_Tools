@@ -30,6 +30,15 @@ namespace eval project_builder {
             error "Error: $root_directory is not a directory."
         }
 
+        set ip_directory [file join $root_directory ip]
+
+        if {![file exists $ip_directory]} {
+            error "Error: $root_directory does not contain a 'ip' directory."
+        }
+        if {![file isdirectory $ip_directory]} {
+            error "Error: $ip_directory is not a directory."
+        }
+
         set files_directory [file join $root_directory files]
 
         if {![file exists $files_directory]} {
@@ -66,7 +75,7 @@ namespace eval project_builder {
 
     proc add_source_files {files_directory} {
         set source_directory [file join $files_directory sources]
-        set source_files [glob -nocomplain -directory $source_directory *.v *.sv *.mem]
+        set source_files [glob -nocomplain -directory $source_directory *.v *.sv *.mem *.vh]
         foreach sofile $source_files {
             add_files -fileset sources_1 $sofile
         }
@@ -74,7 +83,7 @@ namespace eval project_builder {
 
     proc add_simulation_files {files_directory} {
         set simulation_directory [file join $files_directory simulations]
-        set simulation_files [glob -nocomplain -directory $simulation_directory *.v *.sv *.mem]
+        set simulation_files [glob -nocomplain -directory $simulation_directory *.v *.sv *.mem *.vh]
         foreach sifile $simulation_files {
             add_files -fileset sim_1 $sifile
         }
@@ -87,6 +96,14 @@ namespace eval project_builder {
             add_files -fileset constrs_1 $cofile
         }
     }
+
+    proc add_ip_files {ip_directory} {
+        set ip_files [glob -nocomplain -directory $ip_directory *.xci]
+        foreach ip $ip_files {
+            import_ip $ip
+        }
+        generate_target all [get_ips]
+    }
 }
 
 set ROOT_DIRECTORY [file normalize [file join [file dirname [info script]] ..]]
@@ -98,6 +115,7 @@ proc build_project {{project_part xc7a100tcsg324-1}} {
     set PROJECT_PART $project_part
     set BUILD_DIRECTORY [file join $ROOT_DIRECTORY build]
     set FILES_DIRECTORY [file join $ROOT_DIRECTORY files]
+    set IP_DIRECTORY [file join $ROOT_DIRECTORY ip]
 
     puts "Building project: $PROJECT_NAME in directory: $ROOT_DIRECTORY"
 
@@ -107,12 +125,10 @@ proc build_project {{project_part xc7a100tcsg324-1}} {
     project_builder::add_source_files $FILES_DIRECTORY
     project_builder::add_simulation_files $FILES_DIRECTORY
     project_builder::add_constraint_files $FILES_DIRECTORY
+    project_builder::add_ip_files $IP_DIRECTORY
 
     puts "Project: $PROJECT_NAME has been successfully built in $BUILD_DIRECTORY"
 }
 
-
 puts "Usage: build_project <FPGA part optional, default xc7a100tcsg324-1> for build/rebuild project"
 puts "Example: build_project xc7a100tcsg324-1"
-
-

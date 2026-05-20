@@ -70,8 +70,10 @@ proc new_source_file {file_name} {
         set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
     } elseif {$FILE_EXTENSION eq ".mem"} {
         set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
+    } elseif {$FILE_EXTENSION eq ".vh"} {
+        set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
     } else {
-        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, and .mem are supported."
+        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, .mem and .vh are supported."
     }
     
     if {[file exists $FILE_PATH]} {
@@ -97,8 +99,10 @@ proc new_simulation_file {file_name} {
         set FILE_PATH [file join $SIMULATION_DIRECTORY $file_name]
     } elseif {$FILE_EXTENSION eq ".mem"} {
         set FILE_PATH [file join $SIMULATION_DIRECTORY $file_name]
+    } elseif {$FILE_EXTENSION eq ".vh"} {
+        set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
     } else {
-        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, and .mem are supported for simulation files."
+        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, .mem and .vh are supported for simulation files."
     }
     
     if {[file exists $FILE_PATH]} {

@@ -23,6 +23,7 @@
 
 set ROOT_DIRECTORY [file normalize [file join [file dirname [info script]] ..]]
 set FILES_DIRECTORY [file join $ROOT_DIRECTORY files]
+set IP_DIRECTORY [file join $ROOT_DIRECTORY ip]
 
 proc delete_source_file {file_name} {
     global FILES_DIRECTORY
@@ -36,8 +37,10 @@ proc delete_source_file {file_name} {
         set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
     } elseif {$FILE_EXTENSION eq ".mem"} {
         set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
+    } elseif {$FILE_EXTENSION eq ".vh"} {
+        set FILE_PATH [file join $SOURCE_DIRECTORY $file_name]
     } else {
-        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, and .mem are supported."
+        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, .mem, and .vh are supported."
     }
     
     if {![file exists $FILE_PATH]} {
@@ -62,8 +65,10 @@ proc delete_simulation_file {file_name} {
         set FILE_PATH [file join $SIMULATION_DIRECTORY $file_name]
     } elseif {$FILE_EXTENSION eq ".mem"} {
         set FILE_PATH [file join $SIMULATION_DIRECTORY $file_name]
+    } elseif {$FILE_EXTENSION eq ".vh"} {
+        set FILE_PATH [file join $SIMULATION_DIRECTORY $file_name]
     } else {
-        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, and .mem are supported for simulation files."
+        error "Unsupported file extension: $FILE_EXTENSION. Only .v, .sv, .mem, and .vh are supported for simulation files."
     }
     
     if {![file exists $FILE_PATH]} {
@@ -97,9 +102,32 @@ proc delete_constraint_file {file_name} {
     }
 }
 
+proc delete_ip_file {ip_name} {
+    global IP_DIRECTORY
+    
+    set ip_file [file join $IP_DIRECTORY $ip_name]
+    set FILE_EXTENSION [file extension $ip_name]
+
+    if {$FILE_EXTENSION eq ".xci"} {
+        set FILE_PATH [file join $ip_file]
+    } else {
+        error "Unsupported file extension: $FILE_EXTENSION. Only .xci is supported for IP files."
+    }
+    
+    if {![file exists $FILE_PATH]} {
+        error "Error: IP file $FILE_PATH does not exist."
+    } else {
+        remove_files $FILE_PATH
+        file delete -force $FILE_PATH
+        puts "IP file deleted: $FILE_PATH"
+    }
+}
+
 puts "Usage: delete_source_file <file_name> to delete a source file from the 'files/sources' directory."
 puts "Example: delete_source_file my_module.v"
 puts "Usage: delete_simulation_file <file_name> to delete a simulation file from the 'files/simulations' directory."
 puts "Example: delete_simulation_file my_testbench.sv"
 puts "Usage: delete_constraint_file <file_name> to delete a constraint file from the 'files/constraints' directory."
 puts "Example: delete_constraint_file my_constraints.xdc"
+puts "Usage: delete_ip_file <ip_name> to delete an IP file from the 'ip' directory."
+puts "Example: delete_ip_file my_ip.xci"
