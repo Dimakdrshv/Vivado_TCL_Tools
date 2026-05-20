@@ -1,6 +1,6 @@
 # Vivado Tcl Tools
 
-Набор Tcl-скриптов для автоматизации разработки FPGA-проектов в Xilinx Vivado. Проект на данном этапе разработки не поддерживает интеграцию с IP-ядрами.
+Набор Tcl-скриптов для автоматизации разработки FPGA-проектов в САПР Vivado.
 
 ## Требуемая структура проекта
 
@@ -9,6 +9,7 @@
 ```text
 project_root/
 ├── build/
+├── ip/
 ├── files/
 │   ├── sources/
 │   ├── simulations/
@@ -22,8 +23,9 @@ project_root/
 | Папка | Назначение |
 |---|---|
 | `build/` | Генерируемый Vivado-проект (сгенерируется при использовании скриптов локально) |
-| `files/sources/` | HDL-исходники (.v .sv .mem) |
-| `files/simulations/` | Testbench и simulation files (.v .sv .mem) |
+| `ip/` | IP-ядра (.xci) |
+| `files/sources/` | HDL-исходники (.v .sv .mem .vh) |
+| `files/simulations/` | Testbench и simulation files (.v .sv .mem .vh) |
 | `files/constraints/` | XDC constraints |
 | `scripts/` | Tcl automation scripts |
 
@@ -45,13 +47,13 @@ git submodule update --init --recursive
 
 Ваш локальный проект на данном этапе должен выглядить следующим образом:
 
-<img width="660" height="116" alt="image" src="https://github.com/user-attachments/assets/a528e953-b9ab-4827-9c30-38d764c1c298" />
+<img width="695" height="530" alt="image" src="https://github.com/user-attachments/assets/4de463aa-008c-48d8-8bcf-3101ce018285" />
 
 ## Использование Tcl-скриптов
 
 ### build_project.tcl
 
-Скрипт автоматического создания или пересборки проекта. Скрипт автоматически собирает проект исходя из файлов в каталоге `files/`
+Скрипт автоматического создания или пересборки проекта. Скрипт автоматически собирает проект исходя из файлов в каталогах `files/` и `ip/`. (IP-ядра всегда подтягиваются в файлсет **sources_1**)
 
 Для подключения скрипта выполните в TCL Console:
 
@@ -60,14 +62,12 @@ cd <path to local project>
 source scripts/build_project.tcl
 ```
 
-После этого станет доступна команда `build_project <part>` внутри Vivado:
-
-<img width="1917" height="817" alt="image" src="https://github.com/user-attachments/assets/4cfa8ee9-53fb-439a-8a86-e46aba9881cd" />
+После этого станет доступна команда `build_project <part>` внутри Vivado.
 
 Создание проекта для конкретной FPGA:
 
 ```tcl
-build_project <some_part>
+build_project <part>
 ```
 
 Создание проекта для FPGA xc7a100tcsg324-1:
@@ -76,38 +76,53 @@ build_project <some_part>
 build_project
 ```
 
-<img width="1920" height="1031" alt="image" src="https://github.com/user-attachments/assets/1fb21dda-1d79-4d5f-8eb8-bf1e86c0968d" />
-
 ### create_file.tcl
 
-Скрипт создания новых файлов. Поддерживаются файлы формата **.v .sv .mem** для дизайна и симуляции, **.xdc** для проектных ограничений.
+Скрипт создания новых файлов. Поддерживаются файлы формата **.v .sv .mem .vh** для дизайна и симуляции, **.xdc** для проектных ограничений. Файлы автоматически создаются в соответствующем каталоге `files/*` и подтягиваются в проект.
 
 Пример использования:
 
 ```tcl
 source scripts/create_file.tcl
 new_source_file my_module.v
+new_simulation_file my_testbench.sv
+new_constraint_file my_constraints.xdc
 ```
-
-<img width="1920" height="1021" alt="image" src="https://github.com/user-attachments/assets/46ef907d-d91b-4803-97fe-7bb29b4948a5" />
-
 
 ### delete_file.tcl
 
-Скрипт удаления файлов проекта. Поддерживаются файлы формата **.v .sv .mem .xdc**
+Скрипт удаления файлов проекта. Поддерживаются файлы формата **.v .sv .mem .xdc .vh .xci**. Данные файлы удаляются из директорий `files/*` и `ip/`. Для получения проекта без этих файлов после удаления рекомендую пересобрать проект.
 
 Пример использования:
 
 ```tcl
 source scripts/delete_file.tcl
 delete_source_file my_module.v
+delete_simulation_file my_testbench.sv
+delete_constraint_file my_constraints.xdc
+delete_ip_file my_ip.xci
 ```
 
-<img width="1920" height="1040" alt="image" src="https://github.com/user-attachments/assets/cb670292-9429-47df-a0ae-fd4f595c9063" />
+### export_sources.tcl
+
+Данный скрипт необходим в том случае, если вы создаете файлы через GUI интерфейс САПР Vivado или хотите экспортировать IP-ядро из проекта. Поддерживаются файлы формата **.v .sv .mem .xdc .vh .xci**. Данные файлы экспортируются в соответствующие директории `files/*` или `ip/` в зависимости от введенной команды.
+
+Пример использования:
+```tcl
+source scripts/export_sources.tcl
+export_design_source abc.v
+export_simulation_source testbench.sv
+export_constraints_source constraints.xdc
+export_ip_source my_ip.xci
+```
+
+# Исправления
+
+В случае, если Вы нашли ошибку в скриптах, то делайте PR - исправим :)
 
 # Требования
 
-- Xilinx Vivado
+- САПР Vivado
 - Tcl support
 - Git
 
